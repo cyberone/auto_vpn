@@ -19,7 +19,7 @@ class VpnPoc
     start_time = Time.new
     droplet_id = create_or_find_droplet
     droplet_by_id = @client.droplets.find(id: droplet_id)
-    ip_address = droplet_by_id.networks['v4'][0].ip_address
+    ip_address = droplet_by_id.networks['v4'].select {|net| net.type == 'public'}.first.ip_address
     Net::SSH.start(ip_address, 'root', keys: @keys, timeout: 300) do |ssh|
       @logger.debug('Connected to droplet')
       cid = ssh.exec!('docker run -d --restart=always --privileged -p 1194:1194/udp -p 443:443/tcp umputun/dockvpn 2>/dev/null')
