@@ -55,7 +55,7 @@ class VpnPoc
         return droplet.id
       end
     end
-    @droplet = DropletKit::Droplet.new(name: 'vpn-for-a-while', region: 'nyc1', size: 's-1vcpu-1gb', image: 50944795, ssh_keys: my_ssh_keys)
+    @droplet = DropletKit::Droplet.new(name: 'vpn-for-a-while', region: 'nyc1', size: 's-1vcpu-1gb', image: 69060922, ssh_keys: my_ssh_keys)
     sleep 20
     droplet_create_result = @client.droplets.create(@droplet)
     @logger.debug "Droplet created #{droplet_create_result}."
