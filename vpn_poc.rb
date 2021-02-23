@@ -33,16 +33,7 @@ class VpnPoc
     Net::SFTP.start(ip_address, 'root', keys: @keys) do |sftp|
       sftp.download('/root/client.ovpn', 'vpn.ovpn')
     end
-    openvpn_executable = (`brew list openvpn`.split(/\n/).select { |item| item.end_with? '/openvpn'}).first
-    if openvpn_executable.nil?
-      raise "Looks like openvpn is not installed. Command 'brew list openvpn' did not return suitable executable"
-    end
-    pid = Process.spawn("sudo #{openvpn_executable} vpn.ovpn")
-    @logger.debug "Child process with PID #{pid} started"
-    sleep 3599 - (Time.new - start_time)
-    @client.droplets.delete(id: droplet_id)
-    `sudo kill #{pid}`
-    @logger.debug "Please do not forget to remove dropet"
+    `open vpn.ovpn`
   end
 
   private
@@ -55,7 +46,7 @@ class VpnPoc
         return droplet.id
       end
     end
-    @droplet = DropletKit::Droplet.new(name: 'vpn-for-a-while', region: 'nyc1', size: 's-1vcpu-1gb', image: 69060922, ssh_keys: my_ssh_keys)
+    @droplet = DropletKit::Droplet.new(name: 'vpn-for-a-while', region: 'nyc1', size: 's-1vcpu-1gb', image: 72401866, ssh_keys: my_ssh_keys)
     sleep 20
     droplet_create_result = @client.droplets.create(@droplet)
     @logger.debug "Droplet created #{droplet_create_result}."
