@@ -22,13 +22,12 @@ class VpnPoc
     ip_address = droplet_by_id.networks['v4'].select {|net| net.type == 'public'}.first.ip_address
     Net::SSH.start(ip_address, 'root', keys: @keys, timeout: 300) do |ssh|
       @logger.debug('Connected to droplet')
-      cid = ssh.exec!('docker run -d --restart=always --privileged -p 1194:1194/udp -p 443:443/tcp umputun/dockvpn 2>/dev/null')
+      cid = ssh.exec!('docker run -d --restart=always --privileged -p 1194:1194/udp -p 80:8080/tcp -e HOST_ADDR=$(curl -s https://api.ipify.org) alekslitvinenk/openvpn 2>/dev/null')
       cid.chop!
       @logger.debug("VPN container ID: #{cid}")
       @logger.debug 'Waiting 2 minutes for container to start'
       sleep 120
-      @logger.debug 'Copying VPN credentials from container'
-      ssh.exec!("docker cp #{cid}:/etc/openvpn/client.ovpn ~")
+      `curl -o vpn.ovpn http://#{ip_address}`
     end
     Net::SFTP.start(ip_address, 'root', keys: @keys) do |sftp|
       sftp.download('/root/client.ovpn', 'vpn.ovpn')
